@@ -1,9 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Yoinkit",
+  "name": "Media Extractor",
   "version": "1.0",
-  "description": "Extract and download media from any webpage",
-  "permissions": ["activeTab"],
+  "description": "Extract and download images, videos, and other media from webpages",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
   "action": {
     "default_icon": {
       "16": "icon16.png",
@@ -11,8 +14,7 @@
       "128": "icon128.png"
     }
   },
-  "content_scripts": [{
-    "matches": ["<all_urls>"],
-    "js": ["content.js"]
-  }]
+  "background": {
+    "service_worker": "background.js"
+  }
 }
