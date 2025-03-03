@@ -1,24 +1,35 @@
 (() => {
   // Helper function to get appropriate file extension
   const getFileExtension = (contentType, fallbackType) => {
-    // Map of content types to file extensions
+    // For images, always return jpg or png
+    if (contentType && contentType.startsWith('image/')) {
+      // Prefer the original format if it's JPG or PNG
+      if (contentType === 'image/jpeg' || contentType === 'image/jpg') {
+        return 'jpg';
+      }
+      if (contentType === 'image/png') {
+        return 'png';
+      }
+      
+      // Default image format to PNG for transparency
+      return 'png';
+    }
+    
+    // For videos, always return mp4 or mov
+    if (contentType && contentType.startsWith('video/')) {
+      // Use MP4 by default for videos
+      return 'mp4';
+    }
+    
+    // For other types, use a proper mapping
     const extensionMap = {
-      'image/jpeg': 'jpg',
-      'image/jpg': 'jpg',
-      'image/png': 'png',
-      'image/gif': 'gif',
-      'image/webp': 'webp',
-      'image/svg+xml': 'svg',
-      'video/mp4': 'mp4',
-      'video/webm': 'webm',
-      'video/ogg': 'ogv',
       'audio/mpeg': 'mp3',
       'audio/ogg': 'ogg',
       'audio/wav': 'wav',
-      'audio/webm': 'webm'
+      'audio/webm': 'mp3'
     };
     
-    // Try to get extension from content type
+    // Try to get extension for non-image, non-video content types
     if (contentType && extensionMap[contentType]) {
       return extensionMap[contentType];
     }
@@ -162,8 +173,23 @@
         <div style="margin-bottom: 5px; font-weight: 500; color: #f8fafc;">📷 Image · ${img.naturalWidth}×${img.naturalHeight}</div>
         <div style="opacity: 0.7; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${img.src}</div>
       `;
+      
+      // Create JPG and PNG download buttons
+      const pngButton = createDownloadButton(img.src, 'png');
+      pngButton.textContent = 'Download PNG';
+      
+      const jpgButton = createDownloadButton(img.src, 'jpg');
+      jpgButton.textContent = 'Download JPG';
+      jpgButton.style.marginTop = '4px';
+      
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.flexDirection = 'column';
+      buttonContainer.appendChild(pngButton);
+      buttonContainer.appendChild(jpgButton);
 
-      wrapper.append(clone, info, createDownloadButton(img.src, 'jpg'));
+      wrapper.append(clone, info, buttonContainer);
       grid.appendChild(wrapper);
     }
   });
@@ -210,7 +236,22 @@
         <div style="opacity: 0.7; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${url}</div>
       `;
 
-      wrapper.append(videoEl, info, createDownloadButton(url, 'mp4'));
+      // Create MP4 and MOV download buttons
+      const mp4Button = createDownloadButton(url, 'mp4');
+      mp4Button.textContent = 'Download MP4';
+      
+      const movButton = createDownloadButton(url, 'mov');
+      movButton.textContent = 'Download MOV';
+      movButton.style.marginTop = '4px';
+      
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.flexDirection = 'column';
+      buttonContainer.appendChild(mp4Button);
+      buttonContainer.appendChild(movButton);
+
+      wrapper.append(videoEl, info, buttonContainer);
       grid.appendChild(wrapper);
     }
   });
