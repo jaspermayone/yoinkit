@@ -1,4 +1,32 @@
 (() => {
+  // Helper function to get appropriate file extension
+  const getFileExtension = (contentType, fallbackType) => {
+    // Map of content types to file extensions
+    const extensionMap = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg',
+      'video/mp4': 'mp4',
+      'video/webm': 'webm',
+      'video/ogg': 'ogv',
+      'audio/mpeg': 'mp3',
+      'audio/ogg': 'ogg',
+      'audio/wav': 'wav',
+      'audio/webm': 'webm'
+    };
+    
+    // Try to get extension from content type
+    if (contentType && extensionMap[contentType]) {
+      return extensionMap[contentType];
+    }
+    
+    // Fall back to the type parameter or generic extension
+    return fallbackType || 'bin';
+  };
+
   const existingOverlay = document.querySelector('.media-extractor-overlay');
   if (existingOverlay) {
     existingOverlay.remove();
@@ -51,9 +79,27 @@
         const response = await fetch(url);
         const blob = await response.blob();
         const downloadUrl = window.URL.createObjectURL(blob);
+        
+        // Better filename handling
+        let filename = url.split('/').pop().split('?')[0] || `media`;
+        
+        // Ensure proper file extension based on content type
+        const contentType = blob.type;
+        const fileExt = getFileExtension(contentType, type);
+        
+        // If filename doesn't already have the correct extension, add it
+        if (!filename.toLowerCase().endsWith(`.${fileExt.toLowerCase()}`)) {
+          filename = `${filename}.${fileExt}`;
+        }
+        
+        // Limit filename length to something reasonable
+        if (filename.length > 50) {
+          filename = filename.substring(0, 46) + '.' + fileExt;
+        }
+        
         const a = document.createElement('a');
         a.href = downloadUrl;
-        a.download = url.split('/').pop() || `media.${type}`;
+        a.download = filename;
         a.click();
         window.URL.revokeObjectURL(downloadUrl);
       } catch (error) {
